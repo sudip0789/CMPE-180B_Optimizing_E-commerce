@@ -1,7 +1,7 @@
 '''Total sales revenue over a specific period:'''
 
 SELECT SUM(sale_price) AS total_revenue
-FROM order_items
+FROM `bigquery-public-data.thelook_ecommerce.order_items`
 WHERE shipped_at BETWEEN 'start_date' AND 'end_date';
 
 
@@ -9,8 +9,8 @@ WHERE shipped_at BETWEEN 'start_date' AND 'end_date';
 '''Sales revenue by product category:'''
 
 SELECT product_category, SUM(sale_price) AS category_revenue
-FROM order_items oi
-JOIN inventory_items ii ON oi.inventory_item_id = ii.id
+FROM `bigquery-public-data.thelook_ecommerce.order_items` oi
+JOIN `bigquery-public-data.thelook_ecommerce.inventory_items` ii ON oi.inventory_item_id = ii.id
 GROUP BY product_category;
 
 
@@ -18,11 +18,11 @@ GROUP BY product_category;
 '''Top-selling products by revenue:'''
 
 SELECT product_name, SUM(sale_price) AS total_revenue
-FROM order_items oi
-JOIN inventory_items ii ON oi.inventory_item_id = ii.id
+FROM `bigquery-public-data.thelook_ecommerce.order_items` oi
+JOIN `bigquery-public-data.thelook_ecommerce.inventory_items` ii ON oi.inventory_item_id = ii.id
 GROUP BY product_name
 ORDER BY total_revenue DESC
-LIMIT 10;
+LIMIT 20;
 
 
 
@@ -30,7 +30,7 @@ LIMIT 10;
 
 SELECT DATE_TRUNC('month', shipped_at) AS month,
        SUM(sale_price) AS monthly_revenue
-FROM order_items
+FROM `bigquery-public-data.thelook_ecommerce.order_items`
 GROUP BY month
 ORDER BY month;
 
@@ -40,7 +40,7 @@ ORDER BY month;
 
 SELECT DATE_TRUNC('month', created_at) AS month,
        COUNT(DISTINCT user_id) AS new_customers
-FROM orders
+FROM `bigquery-public-data.thelook_ecommerce.orders`
 GROUP BY month
 ORDER BY month;
 
@@ -49,10 +49,10 @@ ORDER BY month;
 '''Customer retention rate:'''
 
 SELECT COUNT(DISTINCT user_id) AS returning_customers
-FROM orders
+FROM `bigquery-public-data.thelook_ecommerce.orders`
 WHERE created_at <= 'end_date' AND user_id IN (
     SELECT DISTINCT user_id
-    FROM orders
+    FROM `bigquery-public-data.thelook_ecommerce.orders`
     WHERE created_at < 'start_date'
 );
 
@@ -61,7 +61,7 @@ WHERE created_at <= 'end_date' AND user_id IN (
 '''Customer demographics:'''
 
 SELECT gender, COUNT(*) AS count
-FROM users
+FROM `bigquery-public-data.thelook_ecommerce.users`
 GROUP BY gender;
 
 
@@ -69,7 +69,7 @@ GROUP BY gender;
 '''Customer lifetime value (CLV):'''
 
 SELECT user_id, SUM(sale_price) AS total_spent
-FROM order_items
+FROM `bigquery-public-data.thelook_ecommerce.order_items`
 GROUP BY user_id
 ORDER BY total_spent DESC;
 
@@ -78,7 +78,7 @@ ORDER BY total_spent DESC;
 '''Inventory levels by product:'''
 
 SELECT product_name, COUNT(*) AS inventory_count
-FROM inventory_items
+FROM `bigquery-public-data.thelook_ecommerce.inventory_items`
 GROUP BY product_name;
 
 
@@ -87,7 +87,7 @@ GROUP BY product_name;
 
 SELECT product_name, 
        COUNT(*) / DATEDIFF(MAX(sold_at), MIN(created_at)) AS turnover_rate
-FROM inventory_items
+FROM `bigquery-public-data.thelook_ecommerce.inventory_items`
 JOIN order_items ON inventory_items.id = order_items.inventory_item_id
 GROUP BY product_name;
 
@@ -96,7 +96,7 @@ GROUP BY product_name;
 '''Stockout analysis:'''
 
 SELECT product_name, COUNT(*) AS stockout_count
-FROM inventory_items
+FROM `bigquery-public-data.thelook_ecommerce.inventory_items`
 WHERE sold_at IS NULL
 GROUP BY product_name;
 
@@ -105,6 +105,7 @@ GROUP BY product_name;
 '''Slow-moving or obsolete inventory identification:'''
 
 SELECT product_name, COUNT(*) AS inventory_count
-FROM inventory_items
+FROM `bigquery-public-data.thelook_ecommerce.inventory_items`
 WHERE sold_at IS NULL AND created_at <= 'obsolete_date'
 GROUP BY product_name;
+
